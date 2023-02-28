@@ -1,0 +1,121 @@
+---
+title: "Exercise 1, Ling Stats S2023"
+subtitle: "Due Friday, January 27, 2023 via Canvas"
+author: "Clio Begnal"
+date: "2023-01-27"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: show
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, include=TRUE, results="hold", comment=NA)
+```
+
+# Setting up your homework file
+
+Start by replacing my name with your name in the title box above. Then replace the date I've written above with the current date.
+
+# Load the packages and data necessary for this analysis.
+
+Load the `tidyverse` packages, the `Rling` package, and the dataset called `ELP`. Insert your code into the code chunk in the gray box below to show how to do this.
+
+```{r load packages and data}
+# Insert your code below:
+library(tidyverse)
+library(Rling)
+data("ELP")
+?ELP
+```
+
+# Explore the `ELP` dataset.
+
+Questions 1-6 below ask you to explore the `ELP` dataset.
+
+-   Questions 1-3 require a (short) prose response; type your response directly below.
+-   Questions 4-6 do not require a prose response; type the code you used to answer these questions in the gray code chunk below.
+
+1.  What is the `ELP` dataset? Where does it come from, and who put it together?
+
+-   Insert your prose response here: The ELP dataset is a part of the Rling package. It is data from the English Lexicon Project and was created by Balota, D. A., Yap, M. J., Cortese, M. J., et al. (2007). It contains 880 nouns, adjectives, and verbs.
+
+2.  What is the variable `Mean_RT`?
+
+-   Insert your prose response here: Mean_RT is a numeric vector with the mean of the reaction times from the participants' lexical decision task
+
+3.  What is the variable `POS`?
+
+-   Insert your prose response here: POS is a factor of part of speech with levels JJ (adjectives) NN (nouns) and VB (verbs).
+
+```{r describe ELP dataset}
+
+# 4. What is the mean value for Mean_RT, and what is the range? Insert code below:
+summary(ELP)
+# The mean value is 786.8, and the range is (1324.6-517.5) = 807.1
+
+# 5. How many rows and columns are there in the ELP dataset? Insert code below:
+nrow(ELP) 
+ncol(ELP) 
+
+# 6. How many observations are there for each possible value of POS? Insert code below:
+table(ELP$POS)
+```
+
+# Practice with the `filter()` function.
+
+Use the `filter()` function (in combination with `nrow()` and/or any other tricks you like) to answer the questions in the code chunk below. Each answer should just consist of a short code snippet.
+
+```{r practice with filtering}
+
+# How many words in this dataset have 10 letters? Insert code below:
+nrow(filter(ELP, Length==10))
+
+# How many words in this dataset have more than 13 letters?
+nrow(filter(ELP, Length>13))
+
+# How many words in this dataset have 8 letters and are also adjectives?
+nrow(filter(ELP, Length==8, POS=='JJ'))
+
+# How many words in this dataset have 6 letters and are NOT nouns?
+nrow(filter(ELP, Length==6, POS!='NN'))
+
+# How many words in this dataset have a frequency value less than 0.05?
+nrow(filter(ELP, SUBTLWF<0.05))
+
+# Which of the following words appear in this dataset?:
+# recognizes, recompense, hijacked, hoisted, prognosis
+check_word <- c('recognizes', 'recompense', 'hijacked', 'hoisted', 'prognosis')
+check_word %in% ELP$Word
+
+
+```
+
+# Graphical exploration using ggplot2
+
+Make a scatterplot showing `Mean_RT` as a function of `Length` (in letters), where the points have been colored according to part of speech. Be sure to add separate trend lines for the different parts of speech.
+
+```{r plotting Mean_RT as a function of Length}
+# Your code here:
+ggplot(ELP, aes(Length, Mean_RT, color=as.factor(POS))) + 
+  geom_point() +
+  stat_smooth(method='lm')
+
+```
+
+Now make a (meaningful!) boxplot showing word frequency as a function of part of speech. You may want to exclude some extreme values.
+
+```{r plotting word frequency as a function of POS}
+# Your code here:
+ggplot(ELP, aes(POS, SUBTLWF)) +
+  ylim(c(0, 3)) +
+  geom_boxplot(color="darkblue", fill="lightblue")
+```
+
+# Interpreting data
+
+-   Describe what you see in the last plot above: does word frequency seem to vary as a function of POS? Do you find this surprising? Any ideas for why the pattern might look the way it does?
+
+What is seen in the last plot is that all three word classes have similar frequencies, but nouns and verbs are a bit more frequent than adjectives, yet they are about as equally frequent as each other. This may look this way because all sentences need at least 1 noun and 1 verb, and may contain at least 1 adjective but are not necessary. The results aren't necessarily surprising to me, because I assumed that with how sentences are structured that the three parts of speech would be more or less even in frequency!

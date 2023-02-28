@@ -1,0 +1,198 @@
+---
+title: "Exercise 3, Ling Stats S2023"
+subtitle: "Due Friday, February 17, 2023 via Canvas"
+author: "Clio Begnal"
+date: "(17 February 2023)"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: show
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, include=TRUE, comment=NA)
+library(tidyverse)
+library(Rling)
+library(modeest)
+data("ldt")
+```
+
+# Getting set up.
+* Replace my name with your name in the title box above, and add the current date.
+* Within the `setup` code chunk above, load the `tidyverse` package, the `Rling` package, and the `ldt` dataset within the `Rling` package.
+
+
+# Orient yourself to the dataframe.
+For this first question, you may show your code and/or simply answer it in prose.
+
+1. How many observations are in this dataframe? What does each observation seem to correspond to?
+```{r}
+count(ldt)
+```
+
+
+* Insert your answer here.
+**There are 100 observations and they represent the length, frequency, and mean reaction time of different words.**
+
+# Summarize and explore the data.
+Be sure to show your code in this section!
+
+2a. What are the mean, median and mode values for the `Length` variable in this dataset?
+
+```{r calculate the mean, median, and mode for Length}
+# Your code here:
+mean(ldt$Length)
+
+median(ldt$Length)
+
+ldt %>%
+  group_by(Length) %>%
+  count() %>%
+  arrange(desc(n))
+```
+**The mean is 8.23, the median is 8, and the mode is bimodal at 8 and 10.**
+
+2b. Create a histogram and a q-q plot showing the distribution of the `Length` variable. Does `Length` appear relatively normally distributed?
+  
+  * Your answer here.
+
+```{r plots for Length}
+# Your code here:
+qqnorm(ldt$Length)
+qqline(ldt$Length)
+
+ggplot(ldt, aes(Length)) +
+  geom_histogram(bins=10,color="darkblue", fill="lightblue") +
+  geom_density(aes(y=1.1*..count..))
+```
+**Length does  seem to be normally distributed as the histogram is close to a bell curve and the q-q plot looks somewhat linear.**
+
+2c. Run a Shapiro-Wilk normality test for the `Length` variable. What does the result mean, and does it align with your prediction based on the plots?
+
+  * Your answer here.
+
+```{r Shapiro-Wilk test for Length}
+# Your code here:
+shapiro.test(sample(ldt$Length))
+```
+**The result here means that the result is from a normally distributed set of data as the p value is above 0.05.**
+
+3a. What are the mean, median and mode values for the `Freq` variable in this dataset?
+
+```{r calculate the mean, median, and mode for Freq}
+# Your code here:
+mean(ldt$Freq)
+
+median(ldt$Freq)
+
+ldt %>%
+  group_by(Freq) %>%
+  count() %>%
+  arrange(desc(n))
+```
+**The mean is 3350.3`, the median is 310.5, and the mode is 0.**
+
+3b. Create a histogram and a q-q plot showing the distribution of the `Freq` variable. Does `Freq` appear relatively normally distributed?
+
+  * Your answer here.
+
+```{r plots for Freq}
+# Your code here:
+qqnorm(ldt$Freq)
+qqline(ldt$Freq)
+
+ggplot(ldt, aes(Freq)) +
+  geom_histogram(bins=10,color="darkblue", fill="lightblue") +
+  geom_density(aes(y=1.1*..count..))
+```
+**Based on the graphs, Frequency does not seem to be normal at all.**
+
+3c. Run a Shapiro-Wilk normality test for the `Freq` variable. What does the result mean, and does it align with your prediction based on the plots?
+
+  * Your answer here.
+
+```{r Shapiro-Wilk test for Freq}
+# Your code here:
+shapiro.test(sample(ldt$Freq))
+```
+**As the result is under 0.05 and is very small, it is highly unlikely that it is normal which agrees with my prediction.** 
+
+4a. What are the mean, median and mode values for the `Mean_RT` variable in this dataset?
+
+```{r calculate the mean, median, and mode for Mean_RT}
+# Your code here:
+mean(ldt$Mean_RT)
+
+median(ldt$Mean_RT)
+
+ldt %>%
+  group_by(Mean_RT) %>%
+  count() %>%
+  arrange(desc(n))
+
+mlv(ldt$Mean_RT)
+```
+**The mean is 808.25, the median is 784.94, and the mode is 789.00 according to the mlv command, but all the values actually occur once.**
+
+4b. Create a density plot and a q-q plot showing the distribution of the `Mean_RT` variable. Does `Mean_RT` appear relatively normally distributed?
+
+  * Your answer here.
+
+```{r plots for Mean_RT}
+# Your code here:
+qqnorm(ldt$Mean_RT)
+qqline(ldt$Mean_RT)
+
+ggplot(ldt, aes(Mean_RT)) +
+  geom_histogram(bins=10,color="darkblue", fill="lightblue") +
+  geom_density(aes(y=1.1*..count..))
+```
+**No, is does not look normally distributed.**
+
+4c. Run a Shapiro-Wilk normality test for the `Mean_RT` variable. What does the result mean, and does it align with your prediction based on the plots?
+
+  * Your answer here.
+
+```{r Shapiro-Wilk test for Mean_RT}
+# Your code here:
+shapiro.test(sample(ldt$Mean_RT))
+```
+**As the result is under 0.05, it is unlikely that it is normal which aligns with my prediction.**
+
+# Thinking about normality.
+6. What does the difference between the mean and median values for the `Mean_RT` variable tell you about the shape of this distribution?
+
+* Your answer here, in prose.
+
+7. Make a scatterplot that shows the relationship between the `Freq` and `Mean_RT` variables, and add a trend line. Is the trend line useful in this case? (i.e. Does it tell you something meaningful about the relationship between `Freq` and `Mean_RT` in this dataset?) Why or why not?
+
+  * Your answer here, in prose. **No, the trend line and plot are very scattered and do not inform me of much. I cannot see a relationship, and the trendline is showing a very slightly negative relationship but it is hard to actually see because it is not a straight line.**
+
+```{r make a scatterplot for Freq vs. Mean_RT}
+# Your code here:
+ggplot(ldt, aes(Freq,Mean_RT)) +
+  geom_point()  +
+  stat_smooth()
+```
+
+8. One way to deal with issues of non-normality is to remove outliers. Using the `mutate()` function, add the following columns to the `ldt` dataset:
+
+  * A column showing the overall mean for `Freq` (every row should have the same value!).
+  * A column showing the overall standard deviation for `ldt` (ditto).
+  * A column where you take the mean and add 2 times the standard deviation (ditto).
+  * Once you've added these columns, show how you can use the `filter()` function to remove words whose frequency is more than 2 times the standard deviation away from the mean.
+
+```{r remove words with Freq > 2 SDs from the mean}
+# Your code here:
+ldt %>%
+  mutate(overall_mean=mean(Freq), overall_SD=(sd(Freq)), mean_plus_2SD=(mean(Freq)+(2*sd(Freq)))) %>%
+  filter(Freq < mean_plus_2SD) 
+
+```
+
+
+9. About how long did this assignment take you, in total?
+
+* Your answer here. **Around 45 minutes!**

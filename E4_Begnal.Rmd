@@ -1,0 +1,211 @@
+---
+title: "Exercise 4, Ling Stats S2023"
+subtitle: "Due Friday, February 24, 2023 via Canvas"
+author: "Clio Begnal"
+date: "24 February 2023"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: show
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, include=TRUE, comment=NA)
+library(tidyverse)
+library(languageR)
+data('etymology')
+?etymology
+```
+
+# Getting set up
+* Replace my name with your name in the title box above, and add the current date.
+* Within the `setup` code chunk above, load the `tidyverse` package.
+* If you haven't done so before, you will need to install and then load the `languageR` package. Then load the `etymology` dataset.
+* Open up the documentation (i.e. the help file) for `etymology` to read about the variables in this dataset.
+
+**This assignment is more open-ended than previous assignments.
+The goal is for you to use the tools you have acquired so far to explore
+the Dutch `etymology` data set from the `languageR` package.**
+
+
+# Getting oriented to the data
+
+1. How many observations are in the etymology data set, and what does each observation consist of?
+```{r}
+head(etymology)
+count(etymology)
+```
+
+
+* Your answer here, in prose. **There are 285 observations in this data set, and they refer to 14 variables: verbs, written frequency, numeric vector count, mean log bigram frequency, inflectional entropy, auxiliary levels, regularity, length, denominative, age, valency, and written spoken ratio.**
+
+2. For the variable `EtymAge`, what are the possible levels of this factor? What do you think this variable is coding for?
+
+```{r}
+levels(etymology$EtymAge)
+```
+
+* Your answer here, in prose. **The factor EtymAge is referring to the age of the verb, and if it comes from Dutch, Dutch German, West Germanic, Germanic, or Indo-European origin.**
+
+3. Using some knowledge about historical linguistics (hopefully), what order do you think the levels for "EtymAge" should be in? Re-order the levels so that the ordering makes more sense.
+
+```{r reorder the levels of EtymAge}
+# Your code here
+levels(etymology$EtymAge) <- c("IndoEuropean", "Germanic", "WestGermanic","DutchGerman","Dutch")
+levels(etymology$EtymAge)
+```
+
+# Explore the data set
+
+4. Still working with `EtymAge`, how many observations are there for each level? What proportion of observations fall into each category?
+
+```{r describe properties of EtymAge}
+# Your code here
+etymology %>%
+  group_by(EtymAge) %>%
+  summarize(n=n()) %>%
+  mutate(prop=(n/sum(n)))
+```
+
+5. Now choose a categorical variable other than `EtymAge` and describe it:
+What are the possible levels, and how many observations are there for each level? What proportion of observations fall into each category?
+
+```{r choose a categorical variable and describe its properties}
+# Your code here
+levels(etymology$Regularity)
+
+etymology %>%
+  group_by(Regularity) %>%
+  summarize(n=n()) %>%
+  mutate(prop=(n/sum(n)))
+```
+
+6. Choose one more categorical variable and describe it, as well: What are the possible levels, and how many observations are there for each level? What proportion of observations fall into each category?
+
+```{r choose another categorical variable and describe its properties}
+levels(etymology$Auxiliary)
+
+etymology %>%
+  group_by(Auxiliary) %>%
+  summarize(n=n()) %>%
+  mutate(prop=(n/sum(n)))
+```
+
+7. Now choose one of the categorical variables you described above and make three plots with it:
+
+* One showing the counts for the different levels using stacked bars,
+* One showing the proportions of the different levels,
+* And one showing the counts for the different levels using *un*stacked bars.
+
+You may use the following code to create a "dummy variable" for plotting purposes, if you like:
+
+```{r plot your variable three ways, eval=F}
+etymology$DummyVar <- rep("AllVerbs", length(etymology$Verb))
+etymology$DummyVar <- as.factor(etymology$DummyVar)
+
+ggplot(etymology, aes(DummyVar, fill=Regularity)) +
+  geom_bar(color = 'black') +
+  xlab("DummyVar") +
+  ylab("Frequency Count")
+
+ggplot(etymology, aes(DummyVar, fill=Regularity)) +
+  geom_bar(position = "fill", color = "black") +
+  xlab("DummyVar") +
+  ylab("Proportion")
+
+ggplot(etymology, aes(DummyVar, fill=Regularity)) +
+  geom_bar(position = "dodge", color = "black") +
+  xlab("DummyVar") +
+  ylab("Frequency Count")
+
+```
+
+8. Now choose two of the categorical variables you described above and investigate the relationship between them: Provide tables of counts and proportions, along with at least two graphs. Also provide a brief prose description of your findings.
+
+* Your prose description here.
+**The regularity of verbs is very close to being 50/50, and West Germanic verbs are the most frequent.**
+
+```{r examine two categorical variables}
+# Your code here
+ggplot(etymology, aes(EtymAge, fill=Regularity)) +
+  geom_bar(color = 'black') +
+  xlab("EtymAge") +
+  ylab("Frequency Count")
+
+ggplot(etymology, aes(EtymAge, fill=Regularity)) +
+  geom_bar(position = "fill", color = "black") +
+  xlab("EtymAge") +
+  ylab("Proportion")
+
+ggplot(etymology, aes(EtymAge, fill=Regularity)) +
+  geom_bar(position = "dodge", color = "black") +
+  xlab("EtymAge") +
+  ylab("Frequency Count")
+```
+
+9. Repeat the exercise above with a different pair of variables. Choose another pair of categorical variables and investigate the relationship between them: Provide tables of counts and proportions, along with at least two graphs. Also provide a brief prose description of your findings.
+
+* Your prose description here.
+**I found that hebben verbs have the highest count in West Germanic age, and zijnheb verbs are fairly recent in age.** 
+```{r examine two more categorical variables}
+# Your code here
+ggplot(etymology, aes(EtymAge, fill=Auxiliary)) +
+  geom_bar(color = 'black') +
+  xlab("EtymAge") +
+  ylab("Frequency Count")
+
+ggplot(etymology, aes(EtymAge, fill=Auxiliary)) +
+  geom_bar(position = "fill", color = "black") +
+  xlab("EtymAge") +
+  ylab("Proportion")
+
+ggplot(etymology, aes(EtymAge, fill=Auxiliary)) +
+  geom_bar(position = "dodge", color = "black") +
+  xlab("EtymAge") +
+  ylab("Frequency Count")
+```
+
+10. Next, choose a *numerical* variable, and investigate its relationship to one of the categorical variables. Provide a few descriptive statistics (such as means, medians, and/or standard deviations), along with at least one graph. Also provide a brief prose description of your findings.
+
+* Your prose description here. 
+**I found that the mean and median are close to 8, and the standard deviation is 1.67. West Germanic verbs seem to have the largest counts.**
+
+```{r examine a numerical and a categorical variable}
+# Your code here
+mean(etymology$WrittenFrequency)
+median(etymology$WrittenFrequency)
+sd(etymology$WrittenFrequency)
+
+ggplot(etymology, aes(WrittenFrequency, fill=EtymAge)) +
+  geom_histogram(bins=10, color='black')
+```
+
+11. Now, imagine that you want to re-code the `LengthInLetters` variable, so that any words with a length of 4 or less are now in a category called "short", and words with a length of 5 or more are in a category called "long".
+
+First show how you could do that, and then give descriptive statistics (counts and proportions) comparing the number of short vs. long words for verbs of different etymological ages.
+
+Also include a graph comparing either the number or proportion of short vs. long words for different etymological ages.
+
+```{r recode and then describe LengthInLetters}
+# Your code here
+etymology2 <- mutate(etymology, lengths = (ifelse(LengthInLetters > 4, 'long', 'short'))) 
+etymology$LengthInLetters <- etymology2$lengths
+
+ggplot(etymology, aes(EtymAge, fill=LengthInLetters))+
+  geom_bar(position='fill', color='black') +
+  xlab('Etymological Age')+
+  ylab('Proportions')
+```
+```{r}
+etymology %>%
+group_by(LengthInLetters,EtymAge) %>%
+  summarize(n=n()) %>%
+  mutate(props=(n/sum(n)))
+```
+
+12. Finally, describe how you decided to format your plot: What variable is on the x-axis, and why? Did you use color ("fill") in your plot, and why? Do you think it's better to plot counts vs. proportions in this case, and why?
+
+* Your answers here, in prose.
+**I used Etymological age on the x-axis because it is not numerical, whereas the count is numerical and used on the y-axis. I think it's better to plot proportions because you can see which etymological ages have mainly long or short verbs.**

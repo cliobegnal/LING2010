@@ -1,0 +1,155 @@
+---
+title: "Exercise 2, Ling Stats S2023"
+subtitle: "Due Tuesday, February 7, 2023 via Canvas"
+author: "Clio Begnal"
+date: "February 7, 2023"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: show
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, include=TRUE, results="hold", comment=NA)
+library(tidyverse)
+library(ggplot2)
+```
+
+# Getting set up.
+
+-   Replace my name with your name in the title box above, and add the current date.
+-   Within the `setup` code chunk above, load the tidyverse package.
+-   Run the following code to read in the "I_jean" file from Joe Fruehwald's R tutorial.
+
+```{r read in dataset}
+
+jean <- read.delim("http://bit.ly/avml_ggplot2_data")
+jean
+
+```
+
+# Orient yourself to the dataframe.
+
+Answer the two questions below about the dataframe you've just read in. For these first two questions, you may show your code and/or simply answer them in prose.
+
+1.  How many observations are in this dataframe? What does each observation seem to correspond to?
+
+-   Insert your answer here.
+
+```{r}
+count(jean)
+# Each observation is Jean speaking a word I in different contexts
+```
+
+2.  How many unique speakers are there in this dataset, and how many unique words?
+
+-   Insert your answer here. **1 speaker - Jean 5 different words all with I vowel**
+
+# Summarize the data.
+
+Be sure to show your code for questions 3-7.
+
+3.  What is the overall average vowel duration in this dataset?
+
+```{r calculate overall vowel average}
+# Your code here.
+jean %>%
+  summarize(mean_dur = mean(Dur_msec))
+```
+
+4.  For each unique word context, calculate the average vowel duration, average F1, and average F2.
+
+```{r average dur, F1, F2 by word}
+# Your code here.
+jean %>% 
+  group_by(Word) %>%
+  summarize(mean_dur = mean(Dur_msec), mean_F1 = mean(F1), mean_F2 = mean(F2))
+```
+
+5.  Restricting yourself to cases where the word was "I" and the following segment was either a voiced or a voiceless stop, calculate the average vowel duration, average F1, and average F2.
+
+```{r average dur, F1, F2 for "I"}
+# Your code here.
+jean %>%
+  filter(Word == 'I') %>%
+  filter(FolSegTrans %in% c('B','D','G','P','T','K')) %>%
+  summarize(avg_dur = mean(Dur_msec), mean_F1 = mean(F1), mean_F2 = mean(F2))
+```
+
+6.  Using the same restricted dataset as in (5) above, create a new variable that codes for whether the final segment was a voiced or voiceless stop. Then calculate the average duration as a function of this variable.
+
+```{r average vowel dur for voiced vs. voiceless context}
+# Your code here.
+jean %>%
+  filter(Word == 'I') %>%
+  filter(FolSegTrans %in% c('B','D','G','P','T','K')) %>%
+  mutate(stops = ifelse(FolSegTrans %in% c('B','D','G'), 'voiced', 'voiceless')) %>%
+  group_by(stops) %>%
+  summarize(avg_dur = mean(Dur_msec))
+  
+```
+
+7.  Using the `filter()`, `group_by()`, `count()`, and `arrange()` functions, make a table of counts that shows how many observations there are for each segment that can follow the word "I", ordered from most to least frequent.
+
+```{r count following segments for the word "I"}
+# Be sure to arrange your table from most to least frequent following segments.
+jean %>%
+  filter(Word=='I') %>%
+  group_by(FolSegTrans) %>%
+  count() %>%
+  arrange(desc(n))
+```
+
+# Practice plotting.
+
+Be sure to use the full "jean" dataset in this section (not the data summaries you created above).
+
+8.  Make a plot that compares vowel durations for the different words in this dataset.
+
+-   Which word has the longest vowel duration, on average? **I've does!**
+
+```{r plot vowel dur by word}
+# Your code here.
+ggplot(jean, aes(Word, Dur_msec)) +
+  geom_boxplot(fill = "lightblue", color = "blue")
+```
+
+9.  Is there a relationship between vowel duration and F1 in this dataset? Be sure to add a trend line to help any patterns jump out.
+
+```{r plot vowel dur vs. F1}
+# Your code here.
+ggplot(jean, aes(F1, Dur_msec)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+```
+
+**Seems like there's a positive relationship!**
+
+10. Is there a relationship between vowel duration and F2 in this dataset? Be sure to add a trend line again.
+
+```{r plot vowel dur vs. F2}
+# Your code here.
+ggplot(jean, aes(F2, Dur_msec)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+```
+
+**Seems like there's a negative relationship!**
+
+11. Restricting yourself to cases where the following consonant is either a voiced or voiceless stop, add a variable that codes for this (voiced vs. voiceless stop), then make a plot comparing vowel durations for these two contexts.
+
+```{r plot vowel dur before voiced vs. voiceless stops}
+# Your code here.
+jean %>%
+  filter(FolSegTrans %in% c('B','D','G','P','T','K')) %>%
+  mutate(stops = ifelse(FolSegTrans %in% c('B','D','G'), 'voiced', 'voiceless')) %>%
+  group_by(stops) %>%
+  ggplot(aes(stops, Dur_msec))+
+  geom_boxplot(fill = "lightblue", color = "blue")
+```
+
+12. About how long did this assignment take you, in total?
+
+-   Your answer here. **Around 30-45 minutes!**
